@@ -195,7 +195,7 @@ The runtime that loads your package has to start inside BO7. There are two ways:
 | | XInput bootstrap | Launcher (Kronos unchanged) |
 | --- | --- | --- |
 | How the runtime starts | Automatically: Kronos' `XINPUT9_1_0.dll` is replaced by a proxy | You click **Attach runtime** once Kronos has started BO7 |
-| Kronos files | Original renamed to `bo7-runtime-original.dll` | Left in place (restored if the proxy was installed) |
+| Kronos files | Original renamed to `XINPUT9_1_0.dll` | Left in place (restored if the proxy was installed) |
 | Runtime needed | Bundled 0.1.1 | Rebuilt 0.2.0 (see below) |
 
 With the bundled runtime, only the XInput bootstrap works. The Launcher choice is refused with `RUNTIME_LOADER_UNSUPPORTED` until you rebuild the runtime.
@@ -242,7 +242,7 @@ From the `BO7_Linker_v0.7` folder, with Visual Studio 2026 C++ installed:
 powershell -ExecutionPolicy Bypass -File .\source\build.ps1 -Output .\rebuilt -OriginalClientDll "<path to the original Kronos v1.41 DLL>"
 ```
 
-The DLL is `bo7-runtime-original.dll` in the game folder if the bootstrap is installed, otherwise the game's `XINPUT9_1_0.dll`. Then back up `runtime\` and copy `rebuilt\runtime\*` into it. Its `runtime.json` must show `"patchVersion": "0.2.0"` and `"loaders": ["proxy","launcher"]`.
+The DLL is `XINPUT9_1_0.dll` in the game folder if the bootstrap is installed, otherwise the game's `XINPUT9_1_0.dll`. Then back up `runtime\` and copy `rebuilt\runtime\*` into it. Its `runtime.json` must show `"patchVersion": "0.2.0"` and `"loaders": ["proxy","launcher"]`.
 
 ## 9. Languages
 
