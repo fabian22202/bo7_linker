@@ -1,4 +1,4 @@
-# BO7 Linker 0.7.0 — User Guide
+# BO7 Linker 0.9.1 — User Guide
 
 ## 1. What BO7 Linker does
 
