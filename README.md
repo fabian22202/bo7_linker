@@ -14,12 +14,13 @@ flowchart LR
 
 The top row happens in the linker; the bottom row is the in-game test. With the XInput bootstrap you skip Attach runtime.
 
-What version 0.7.0 can do:
+What version 0.9.1 can do:
 
 - create an empty project or import an existing BO7 fastfile;
 - compile models, animations, opaque materials, images and static billboard FX to native BO7;
 - validate a project and build its 5 fastfiles;
 - prepare a test installer, install it, start the runtime and read its status.
+- Do a quick ingame test
 
 What it never changes by itself: the game folder. Only the `Install.cmd` you run yourself writes there, after checking and backing up every file.
 
@@ -29,13 +30,13 @@ What it never changes by itself: the game folder. Only the `Install.cmd` you run
 | --- | --- |
 | Windows 10/11 x64 | Everything |
 | .NET Desktop Runtime 10 | Running the GUI and the engine |
-| French BO7, cod25 CL29269900 | In-game tests (the only validated target) |
-| Original Kronos v1.41 | In-game tests |
-| .NET 10 SDK + Visual Studio 2026 C++ | Rebuilding only (runtime 0.2 for the Launcher loader) |
+| BO7, cod25 CL29269900 | In-game tests (the only validated target) |
+| Kronos | In-game tests |
+| .NET 10 SDK + Visual Studio 2026 C++ | Rebuilding only (runtime for the Launcher loader) |
 
 ## 2. Installation and start-up
 
-There is nothing to install: unpack the `BO7_Linker_v0.6.2` folder anywhere outside the game folder and double-click **Launch-GUI.cmd**.
+There is nothing to install: unpack the `BO7_Linker_v0.91` folder anywhere outside the game folder and double-click **Launch-GUI.cmd**.
 
 Keep the folders together:
 
@@ -57,12 +58,12 @@ The GUI remembers the last project, recent projects, the game folder, the last m
 
 The window has five areas: a header, a sidebar of actions, the project card, the asset list and the activity log, with a status bar at the bottom.
 
-- **Header** — the backend version, the compiler target, the game language, the runtime version, and the **English / Français** selector (the GUI restarts in the chosen language).
+- **Header** — the backend version, the compiler target, the game language, the runtime version, and a language selector (Only French and English are available)
 - **Sidebar** — every action, grouped as Project, Compile, Check and Build & test. Actions that need an open project are greyed out until one is loaded. Hover any action for a short explanation.
 - **Project card** — the path of the `project.bo7.json` file (the drop-down lists recent projects), with **Browse…**, **Reload** and **Show in folder**. Under it: the project name, its native asset count, BO3 imports and game language.
 - **Assets** — the project's assets, grouped as *Native BO7 assets* and *BO3 imports*. Type in **Filter assets…** to search by type or ID. Right-click a row to copy its ID, or to compile a model or animation with it.
 - **Activity** — the log of every backend command: commands in blue, results in grey, successes in green, errors in red. **Copy** and **Clear** sit in its title bar, and **Cancel** appears there while something runs.
-- **Status bar** — the current operation and how long it took. After a build or compilation, **Open output folder** opens the result.
+- **Status bar** — the current operation and how long it took.
 
 You can also drag a `project.bo7.json` file, or the folder that contains it, onto the window to open it.
 
@@ -86,8 +87,8 @@ A project is a folder holding `project.bo7.json`, its native assets, a copy of t
 1. Click **New project** (Ctrl+N).
 2. Enter a name: lowercase letters, digits and underscores, starting with a letter, 48 characters at most (for example `my_weapon`).
 3. Choose a new or empty **Project folder**.
-4. Keep **Game language** on French: it is the only validated language.
-5. Click **Create project**. It opens with 0 native assets.
+4. Choose desired language (only french and english are available)
+5. Click **Create project**.
 
 An empty project can already be built: it gives a main fastfile with zero assets and the four companion fastfiles.
 
@@ -161,6 +162,7 @@ Each file becomes an image named after the file in lowercase, with spaces and da
 1. Click **Compile BO7 FX** and choose the BO3 effect JSON.
 2. Choose the FX source folder (the one holding `materials\` and `images\`).
 3. Choose the output folder. The bundled sprite profile is used automatically.
+4. Adjust various settings
 
 Limits: static billboards only, with no movement, wind, gravity, collision or spawn volume.
 
@@ -186,13 +188,13 @@ A project with BO3 imports that are not compiled to BO7 is refused: an import is
 
 ## 8. Test in game
 
-A build is tested by preparing an installer, running it with the game closed, then starting Kronos and entering local Zombies. Only one package is active per game launch.
+You can test fairly esaily by pressing **"Test in Game"** button
 
 ### Choose a loader
 
 The runtime that loads your package has to start inside BO7. There are two ways:
 
-| | XInput bootstrap | Launcher (Kronos unchanged) |
+| | XInput bootstrap | Launcher (Kronos unchanged but curently blocked by privileges) |
 | --- | --- | --- |
 | How the runtime starts | Automatically: Kronos' `XINPUT9_1_0.dll` is replaced by a proxy | You click **Attach runtime** once Kronos has started BO7 |
 | Kronos files | Original renamed to `bo7-runtime-original.dll` | Left in place (restored if the proxy was installed) |
@@ -236,10 +238,10 @@ With the game and Kronos closed, run **Restore.cmd** from the prepared folder. I
 
 ### Rebuild the runtime for the Launcher loader
 
-From the `BO7_Linker_v0.7` folder, with Visual Studio 2026 C++ installed:
+From the `BO7_Linker_v0.91` folder, with Visual Studio 2026 C++ installed:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\source\build.ps1 -Output .\rebuilt -OriginalClientDll "<path to the original Kronos v1.41 DLL>"
+powershell -ExecutionPolicy Bypass -File .\source\build.ps1 -Output .\rebuilt -OriginalClientDll "<path to the original Kronos v1.41 DLL>" -Install
 ```
 
 The DLL is `XINPUT9_1_0.dll` in the game folder if the bootstrap is installed, otherwise the game's `XINPUT9_1_0.dll`. Then back up `runtime\` and copy `rebuilt\runtime\*` into it. Its `runtime.json` must show `"patchVersion": "0.2.0"` and `"loaders": ["proxy","launcher"]`.
@@ -322,3 +324,16 @@ All compilers are experimental (`runtimeValidated: false`): a build that validat
 | State stays `not-started` | Runtime never started | With Launcher, click Attach runtime; otherwise check `kronos\Logs\bo7-runtime-loader.log` |
 
 Useful files: `kronos\Logs\bo7-runtime-loader.log` (runtime log), `kronos\runtime\status.json` (current state), `kronos\runtime\installed.json` (what the runtime installed), and `native-*-report.json` next to each compilation.
+
+## 12. Other thing(s)
+
+You can add various files type that aren't present in the GUI, at your own risk. (Not tested)
+ 1. Scriptbundles
+ 2. Animpkg
+ 3. Netconststrings
+ 4. Weapon
+ 5. Vfxpkg
+ 6. Weapontunables
+And more...
+
+
